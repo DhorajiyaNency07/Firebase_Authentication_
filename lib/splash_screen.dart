@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storege_google/auth_screen/email_pass_log_in_screen.dart';
 import 'package:firebase_storege_google/screen_flow/fire_storege_screen.dart';
+import 'package:firebase_storege_google/screen_flow/home_screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,19 +18,20 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     // TODO: implement initState
 
-    if(FirebaseAuth.instance.currentUser != null){
-      debugPrint("current user ------------>>> $FirebaseAuth.instance.currentUser!");
-      user=FirebaseAuth.instance.currentUser!;
+    if (FirebaseAuth.instance.currentUser != null) {
+      debugPrint(
+          "current user ------------>>> $FirebaseAuth.instance.currentUser!");
+      user = FirebaseAuth.instance.currentUser;
     }
 
     Future.delayed(
       const Duration(seconds: 2),
       () {
-        if (user != null &&user!.uid.isEmpty) {
+        if (user != null && user!.emailVerified) {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => const EmailPasswordLoginScreen(),
+              builder: (context) => const HomeScreen(),
             ),
             (route) => false,
           );
@@ -37,7 +39,8 @@ class _SplashScreenState extends State<SplashScreen> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-              builder: (context) => const FireStoreScreen(),
+              // builder: (context) => const FireStoreScreen(),
+              builder: (context) => const EmailPasswordLoginScreen(),
             ),
             (route) => false,
           );

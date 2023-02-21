@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storege_google/auth_screen/email_pass_sign_in_screen.dart';
 import 'package:firebase_storege_google/screen_flow/home_screen.dart';
@@ -7,14 +9,18 @@ class EmailPasswordLoginScreen extends StatefulWidget {
   const EmailPasswordLoginScreen({Key? key}) : super(key: key);
 
   @override
-  State<EmailPasswordLoginScreen> createState() => _EmailPasswordLoginScreenState();
+  State<EmailPasswordLoginScreen> createState() =>
+      _EmailPasswordLoginScreenState();
 }
 
 class _EmailPasswordLoginScreenState extends State<EmailPasswordLoginScreen> {
-  FirebaseAuth auth = FirebaseAuth.instance;
-
+  // FirebaseAuth auth = FirebaseAuth.instance;
+  User? user;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+
+  CollectionReference users = FirebaseFirestore.instance.collection('users');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,6 +42,10 @@ class _EmailPasswordLoginScreenState extends State<EmailPasswordLoginScreen> {
                     borderRadius: BorderRadius.circular(20),
                     borderSide: const BorderSide(color: Colors.black87),
                   ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.blue),
+                  ),
                 ),
               ),
               const SizedBox(
@@ -50,6 +60,10 @@ class _EmailPasswordLoginScreenState extends State<EmailPasswordLoginScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
                     borderSide: const BorderSide(color: Colors.black87),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: const BorderSide(color: Colors.blue),
                   ),
                 ),
               ),
@@ -96,23 +110,29 @@ class _EmailPasswordLoginScreenState extends State<EmailPasswordLoginScreen> {
 
   userLogin() async {
     try {
-      await auth.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
-      if (auth.currentUser!.emailVerified) {
-        debugPrint("currentUser ----------------> ${auth.currentUser}");
-        navigator();
-      } else {
-        debugPrint('verify your email');
+
+      user = FirebaseAuth.instance.currentUser;
+      debugPrint("User data --------->> $user");
+
+      if (user!.emailVerified) {
+        debugPrint("User Is Login ------------------>>> ");
+        DocumentSnapshot data = await users.doc(user!.uid).get();
+        debugPrint(
+            "User Is Login ------------------>>> ${jsonEncode(data.data())}");
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
+      if (e.code == 'invalid-email') {
+        debugPrint('The email provided is wrong.');
+      } else if (e.code == 'user-not-found') {
         debugPrint('No user found for that email.');
       } else if (e.code == 'wrong-password') {
-        debugPrint('Your password do not match please try again.');
-      } else if (e.code == 'weak password') {
-        debugPrint('password is weak');
+        debugPrint('Wrong password provided for that user.');
+      } else if (e.code == 'unknown') {
+        debugPrint('Please provide email and password');
       }
     } catch (e) {
       debugPrint("Error ----->> $e");
@@ -125,6 +145,40 @@ class _EmailPasswordLoginScreenState extends State<EmailPasswordLoginScreen> {
         MaterialPageRoute(
           builder: (context) => const HomeScreen(),
         ),
-            (route) => false);
+        (route) => false);
   }
 }
+
+
+
+
+
+// userLogin() async {
+//   try {
+//     await FirebaseAuth.instance.signInWithEmailAndPassword(
+//       email: emailController.text,
+//       password: passwordController.text,
+//     );
+//
+//     user = FirebaseAuth.instance.currentUser;
+//     debugPrint("User data --------->> $user");
+//
+//     if (user!.emailVerified) {
+//       debugPrint("currentUser ----------------> ${user!.emailVerified}");
+//       navigator();
+//     } else {
+//       debugPrint('verify your email');
+//     }
+//   } on FirebaseAuthException catch (e) {
+//     if (e.code == 'user-not-found') {
+//       debugPrint('No user found for that email.');
+//     } else if (e.code == 'wrong-password') {
+//       debugPrint('Your password do not match please try again.');
+//     } else if (e.code == 'weak password') {
+//       debugPrint('password is weak');
+//     }
+//   } catch (e) {
+//     debugPrint("Error ----->> $e");
+//   }
+// }
+// ///////
