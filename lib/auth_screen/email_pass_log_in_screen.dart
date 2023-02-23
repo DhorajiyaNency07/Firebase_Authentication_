@@ -119,7 +119,6 @@ class _EmailPasswordLoginScreenState extends State<EmailPasswordLoginScreen> {
       debugPrint("User data --------->> $user");
 
       if (user!.emailVerified) {
-        debugPrint("User Is Login ------------------>>> ");
         DocumentSnapshot data = await users.doc(user!.uid).get();
         debugPrint(
             "User Is Login ------------------>>> ${jsonEncode(data.data())}");
@@ -127,12 +126,20 @@ class _EmailPasswordLoginScreenState extends State<EmailPasswordLoginScreen> {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-email') {
         debugPrint('The email provided is wrong.');
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('The email provided is wrong.')));
       } else if (e.code == 'user-not-found') {
         debugPrint('No user found for that email.');
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No user found for that email.')));
       } else if (e.code == 'wrong-password') {
         debugPrint('Wrong password provided for that user.');
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Wrong password provided for that user.')));
       } else if (e.code == 'unknown') {
         debugPrint('Please provide email and password');
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please provide email and password.')));
       }
     } catch (e) {
       debugPrint("Error ----->> $e");

@@ -145,8 +145,12 @@ class _EmailPasswordSignInScreenState extends State<EmailPasswordSignInScreen> {
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
           debugPrint('The password provided is too weak.');
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('The password provided is too weak.')));
         } else if (e.code == 'email-already-in-use') {
           debugPrint('The account already exists for that email.');
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('The account already exists for that email.')));
         }
       } catch (e) {
         debugPrint(e.toString());

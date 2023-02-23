@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,9 +13,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FirebaseStorage storage = FirebaseStorage.instance;
-
+  User? user;
   final ImagePicker picker = ImagePicker();
   XFile? image;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    user = FirebaseAuth.instance.currentUser;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,14 +37,14 @@ class _HomeScreenState extends State<HomeScreen> {
             image == null
                 ? const SizedBox()
                 : Container(
-              height: 100,
-              width: 100,
-              color: Colors.pink,
-              child: Image.file(
-                File(image!.path),
-                fit: BoxFit.cover,
-              ),
-            ),
+                    height: 100,
+                    width: 100,
+                    color: Colors.pink,
+                    child: Image.file(
+                      File(image!.path),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
             ElevatedButton(
               onPressed: () {
                 pickImage();
@@ -66,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                uploadString();
+                sendFile();
               },
               child: const Text(
                 'Send String',
@@ -101,22 +109,33 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
-  uploadImage() async {
+  sendFile() async {
     try {
-      File file = File(image!.path);
-      storage.ref().child('images/one.png').putFile(file);
+      final storageRef = FirebaseStorage.instance.ref();
+      final mountainsRef = storageRef.child("mountains.jpg");
+      // final mountainImagesRef = storageRef.child("images/mountains.jpg");
+      await mountainsRef.putFile(File(image!.path));
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint("Error ------------>>> $e ");
     }
   }
 
-  uploadString() async {
-    String dataUrl = 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==';
-
-    try {
-      storage.ref().child('dataUrl').putString(dataUrl, format: PutStringFormat.dataUrl);
-    } on FirebaseException catch (e) {
-      debugPrint(e.toString());
-    }
+uploadImage() async {
+  try {
+    File file = File(image!.path);
+    storage.ref().child('images/one.png').putFile(file);
+  } catch (e) {
+    debugPrint(e.toString());
   }
+}
+
+uploadString() async {
+  String dataUrl = 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==';
+
+  try {
+    storage.ref().child('dataUrl').putString(dataUrl, format: PutStringFormat.dataUrl);
+  } on FirebaseException catch (e) {
+    debugPrint(e.toString());
+  }
+}
 }
