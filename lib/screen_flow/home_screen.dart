@@ -129,7 +129,7 @@ uploadImage() async {
     debugPrint(e.toString());
   }
 }
-<<<<<<< HEAD
+
 
 uploadString() async {
   String dataUrl = 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==';
@@ -141,5 +141,3 @@ uploadString() async {
   }
 }
 }
-=======
->>>>>>> 6a3582c06cbb6926c7237a6c6b95ac90df23ba32
